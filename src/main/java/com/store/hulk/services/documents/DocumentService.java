@@ -16,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 @Service @Slf4j
 public class DocumentService {
@@ -31,14 +33,14 @@ public class DocumentService {
     @Autowired
     private ProductService productService;
 
-
-    public Iterable<TypeDocument> typeHeadSearchTypeDocument(String query) {
+    @Async("asyncExecutor")
+    public CompletableFuture<Iterable<TypeDocument>> typeHeadSearchTypeDocument(String query) {
         log.info("type head search by query: {}",query);
         if (query.equals("")) {
-            return new ArrayList<>();
+            return CompletableFuture.completedFuture(new ArrayList<>());
         }
         query = "%" + query + "%";
-        return typeDocumentRepository.typeHeadSearch(query);
+        return CompletableFuture.completedFuture(typeDocumentRepository.typeHeadSearch(query));
     }
 
     public TypeDocument saveTypeDocument(TypeDocument typeDocument){
@@ -73,9 +75,10 @@ public class DocumentService {
         return typeDocumentRepository.count(id);
     }
 
-    public Page<CommercialDocument> typeHeadSearchPage(String query, Pageable pageable) {
+    @Async("asyncExecutor")
+    public CompletableFuture<Page<CommercialDocument>> typeHeadSearchPage(String query, Pageable pageable) {
         log.info("type head search by query: {}",query);
         query = "%" + query + "%";
-        return documentRepository.typeHeadSearchPage(query, pageable);
+        return CompletableFuture.completedFuture(documentRepository.typeHeadSearchPage(query, pageable));
     }
 }

@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service @Slf4j
 public class CustomerService {
@@ -22,39 +24,44 @@ public class CustomerService {
     private ICustomerRepository repository;
 
 
-    public Customer save(Customer customer){
+    @Async("asyncExecutor")
+    public CompletableFuture< Customer > save(Customer customer){
         log.info("Save customer: {}",customer.getName());
         try {
-            return repository.save(customer);
+            return  CompletableFuture.completedFuture( repository.save(customer));
         }catch (DataAccessException e){
             log.error("Error Customer:{}",e.getMessage());
         }
-        return new Customer();
+        return CompletableFuture.completedFuture(new Customer());
     }
 
-    public Optional<Customer> findById(Long id){
+    @Async("asyncExecutor")
+    public CompletableFuture<Optional<Customer>> findById(Long id){
         log.info("Find customer by id: {}",id);
-        return  repository.findById(id);
+        return  CompletableFuture.completedFuture(repository.findById(id));
     }
 
-    public Iterable<Customer> getAll(){
+    @Async("asyncExecutor")
+    public CompletableFuture<Iterable<Customer>> getAll(){
         log.info("Get all customers");
-        return repository.findAll();
+        return CompletableFuture.completedFuture(repository.findAll());
     }
 
-    public Iterable<Customer> typeHeadSearch(String query) {
+    @Async("asyncExecutor")
+    public CompletableFuture<Iterable<Customer>> typeHeadSearch(String query) {
         log.info("type head search by query: {}",query);
         if (query.equals("")) {
-            return new ArrayList<>();
+            return CompletableFuture.completedFuture(new ArrayList<>());
         }
         query = "%" + query + "%";
-        return repository.typeHeadSearch(query);
+        return CompletableFuture.completedFuture(repository.typeHeadSearch(query));
     }
 
-    public Page<Customer> typeHeadSearchPage(String query, Pageable pageable) {
+    @Async("asyncExecutor")
+    public CompletableFuture<Page<Customer>> typeHeadSearchPage(String query, Pageable pageable) {
         log.info("type head search by query: {}",query);
         query = "%" + query + "%";
-        return repository.typeHeadSearchPage(query, pageable);
+        return CompletableFuture.completedFuture(repository.typeHeadSearchPage(query, pageable));
     }
 
 

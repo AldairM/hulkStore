@@ -1,13 +1,16 @@
 package com.store.hulk.services.customers;
 
 import com.store.hulk.models.customers.Customer;
-import com.store.hulk.models.users.UserHulk;
+import com.store.hulk.models.products.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,26 +22,29 @@ class CustomerServiceTest {
     private CustomerService service;
 
     @Test
-    void save() {
+    void save() throws ExecutionException, InterruptedException {
 
         Customer customer = new Customer(0,"Wandie","Bernot","Harbinson",false);
-        customer = service.save(customer);
+        Future< Customer > future = service.save(customer);
+        Customer rps = future.get();
 
-        assertThat(customer.getId()).isGreaterThan(0);
+        assertThat(rps.getId()).isGreaterThan(0);
 
 
     }
 
     @Test
-    void findById() {
-        Optional<Customer> customer = service.findById(Long.valueOf(1));
-        assertThat(customer).isNotNull();
+    void findById() throws ExecutionException, InterruptedException {
+        Future< Optional<Customer> > future = service.findById(Long.valueOf(1));
+        Optional<Customer> rps = future.get();
+        assertThat(rps).isNotNull();
     }
 
     @Test
-    void getAll() {
-        Collection<Customer> all = (Collection<Customer>) service.getAll();
-        assertThat(all.size()).isGreaterThan(0);
+    void getAll() throws ExecutionException, InterruptedException {
+        CompletableFuture<Iterable<Customer>> future = service.getAll();
+        Collection<Customer> rps = (Collection<Customer>) future.get();
+        assertThat(rps.size()).isGreaterThan(0);
     }
 
     @Test
