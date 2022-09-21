@@ -3,6 +3,7 @@
  */
 package com.store.hulk.models.documents;
 
+import com.store.hulk.listeners.documents.CommercialDocumentListener;
 import com.store.hulk.models.audit.AuditModel;
 import com.store.hulk.models.customers.Customer;
 import com.store.hulk.models.users.UserHulk;
@@ -22,6 +23,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityListeners({CommercialDocumentListener.class})
 public class CommercialDocument extends AuditModel {
 
     @Id
